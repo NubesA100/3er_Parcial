@@ -1,0 +1,24 @@
+services:  # Sección donde se definen los servicios
+  db:  # Servicio para el contenedor de MySQL
+    image: mysql:latest  # Imagen oficial de MySQL
+    environment:  # Variables de entorno para configurar MySQL
+      MYSQL_ROOT_PASSWORD: secure_password  # Contraseña del usuario root
+      MYSQL_DATABASE: my_database  # Nombre de la base de datos a crear
+    networks:  # Conexión a la red definida
+      - Mi_Telcel  # Nombre de la red a la que se conecta
+    
+
+  web:  # Servicio para el contenedor de Nginx
+    image: nginx:latest  # Imagen oficial de Nginx
+    volumes:  # Montaje de volúmenes para persistencia y acceso a archivos
+      - ./public:/usr/share/nginx/html  # Carpeta local 'public' mapeada al directorio de Nginx
+    networks:  # Conexión a la misma red que el servicio db
+      - Mi_Telcel  # Nombre de la red a la que se conecta
+    ports:  # Configuración de puertos expuestos
+      - "8080:80"  # Mapea el puerto 80 del contenedor al puerto 8080 del host
+    depends_on:
+      - db # Esta linea refiere a que el servidor web dependa de la base de datos. Si no inicia la DB el
+           # servidor web no iniciara.
+    restart: always #Si falla, que se reinicie
+networks:      # Sección donde se definen las redes
+  Mi_Telcel:  # Nombre de la red personalizada
