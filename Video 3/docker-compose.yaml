@@ -1,14 +1,16 @@
 services:  # Sección donde se definen los servicios
   db:  # Servicio para el contenedor de MySQL
+    container_name: contenedor_db
     image: mysql:latest  # Imagen oficial de MySQL
     environment:  # Variables de entorno para configurar MySQL
-      MYSQL_ROOT_PASSWORD: secure_password  # Contraseña del usuario root
-      MYSQL_DATABASE: my_database  # Nombre de la base de datos a crear
+      MYSQL_ROOT_PASSWORD: 123  # Contraseña del usuario root
+      MYSQL_DATABASE: Mi_Base_de_Datos  # Nombre de la base de datos a crear
     networks:  # Conexión a la red definida
       - Mi_Telcel  # Nombre de la red a la que se conecta
     
 
   web:  # Servicio para el contenedor de Nginx
+    container_name: contenedor_web
     image: nginx:latest  # Imagen oficial de Nginx
     volumes:  # Montaje de volúmenes para persistencia y acceso a archivos
       - ./public:/usr/share/nginx/html  # Carpeta local 'public' mapeada al directorio de Nginx
