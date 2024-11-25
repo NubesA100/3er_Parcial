@@ -1,0 +1,47 @@
+services:  # Sección donde se definen los servicios que componen la aplicación.
+  
+  db:  # Servicio para el contenedor de MySQL.
+    container_name: contenedor_db  # Nombre del contenedor de MySQL, facilitando su identificación.
+    image: mysql:latest  # Utiliza la imagen oficial más reciente de MySQL.
+    
+    environment:  # Variables de entorno para configurar el contenedor de MySQL.
+      MYSQL_ROOT_PASSWORD: 123456  # Contraseña segura para el usuario root de MySQL.
+      MYSQL_DATABASE: Mi_Base_de_Datos  # Nombre de la base de datos que se creará al iniciar el contenedor.
+
+    networks:  # Sección que define las redes a las que se conecta este servicio.
+      - Mi_Telcel  # Nombre de la red personalizada a la que se conecta el contenedor.
+
+    volumes:  # Sección para definir volúmenes asociados al contenedor.
+      - db_data:/var/lib/mysql  # Monta un volumen persistente para almacenar 
+                                # los datos de MySQL, asegurando que no se pierdan al detener o eliminar el contenedor.
+
+
+  #Declaracion de otro servicio
+  web:  # Servicio para el contenedor de Nginx.
+    container_name: contenedor_web  # Nombre del contenedor de Nginx, facilitando su identificación.
+    image: nginx:latest  # Utiliza la imagen oficial más reciente de Nginx.
+
+    volumes:  # Sección para definir volúmenes asociados al contenedor.
+      - ./public:/usr/share/nginx/html  # Mapea la carpeta local 'public' 
+                                        # al directorio donde Nginx sirve archivos estáticos.
+
+    networks:  # Sección que define las redes a las que se conecta este servicio.
+      - Mi_Telcel  # Nombre de la red personalizada a la que se conecta el contenedor.
+
+    ports:  # Configuración de puertos expuestos por el contenedor.
+      - "8080:80"   # Mapea el puerto 80 del contenedor (Nginx) al puerto 8080 del host,
+                    # permitiendo acceder a Nginx desde el navegador en http://localhost:8080.
+
+    depends_on:  # Define dependencias entre servicios.
+      - db  # Indica que el servicio web (Nginx) depende del servicio de base de datos (MySQL). 
+            # Nginx no se iniciará hasta que MySQL esté disponible.
+
+    restart: always  # Configuración para reiniciar automáticamente el contenedor si falla, asegurando alta disponibilidad.
+
+#Declaraciones finales
+networks:
+  Mi_Telcel:  # Definición de una red personalizada llamada 'Mi_Telcel', permitiendo la comunicación entre los servicios definidos.
+
+volumes:
+  db_data:  # Definición de un volumen llamado 'db_data' para almacenar los datos persistentes de MySQL, 
+            # asegurando que no se pierdan al eliminar el contenedor.

@@ -1,0 +1,18 @@
+pipeline { 
+    agent any
+
+    stages {
+        stage('Deploy Application') {
+            steps {
+                echo 'Desplegando aplicación usando el archivo docker-compose.yml local...'
+                sh 'docker-compose up -d'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline completado.'
+        }
+    }
+}

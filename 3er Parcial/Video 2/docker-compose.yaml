@@ -1,0 +1,52 @@
+services:  # Sección que define los servicios que se ejecutarán
+  # Servicio para MySQL
+  mysql:
+    image: mysql:8.0  # Imagen de MySQL, versión 8.0
+    container_name: mysql-container  # Nombre del contenedor para referencia
+    environment:  # Variables de entorno para configurar el contenedor
+      MYSQL_ROOT_PASSWORD: example_password  # Contraseña para el usuario root
+      MYSQL_DATABASE: my_database  # Nombre de la base de datos que se creará al iniciar
+      MYSQL_USER: user  # Nombre del usuario que tendrá acceso a la base de datos
+      MYSQL_PASSWORD: user_password  # Contraseña para el usuario creado
+    ports:
+      - "3306:3306"  # Mapea el puerto 3306 del contenedor al puerto 3306 del host
+    volumes:
+      - mysql_data:/var/lib/mysql  # Almacena los datos de MySQL en un volumen persistente
+    networks:
+      - app-network  # Conecta este servicio a la red definida más abajo
+
+  # Servicio para Redis
+  redis:
+    image: redis:latest  # Imagen de Redis, última versión disponible
+    container_name: redis-container  # Nombre del contenedor para referencia
+    ports:
+      - "6379:6379"  # Mapea el puerto 6379 del contenedor al puerto 6379 del host
+    networks:
+      - app-network  # Conecta este servicio a la red definida más abajo
+
+  # Servicio para la aplicación Node.js
+  node-app: 
+    build: ./node-app  # Ruta al Dockerfile para construir la imagen de la aplicación Node.js
+    container_name: node-app-container  # Nombre del contenedor para referencia
+    ports:
+      - "3000:3000"  # Mapea el puerto 3000 del contenedor al puerto 3000 del host
+    environment:  # Variables de entorno utilizadas por la aplicación Node.js
+      DB_HOST: mysql  # Hostname del servicio MySQL (nombre del servicio)
+      DB_USER: user  # Usuario de la base de datos MySQL
+      DB_PASSWORD: user_password  # Contraseña del usuario de la base de datos MySQL
+      DB_NAME: my_database  # Nombre de la base de datos a utilizar
+      REDIS_HOST: redis  # Hostname del servicio Redis (nombre del servicio)
+    depends_on:
+      - mysql   # Asegura que MySQL esté disponible antes de iniciar este servicio
+      - redis   # Asegura que Redis esté disponible antes de iniciar este servicio
+    restart: always  # Reinicia automáticamente el contenedor si se detiene o falla
+    networks:
+      - app-network  # Conecta este servicio a la red definida más abajo
+
+networks:
+  app-network:       # Definición de una red personalizada para los servicios
+    driver: bridge   # Utiliza el controlador "bridge" para la red
+
+volumes:
+  mysql_data:       # Definición de un volumen persistente para almacenar datos de MySQL
+    driver: local   # Utiliza el controlador local para el volumen
